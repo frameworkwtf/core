@@ -1,0 +1,33 @@
+{
+    "name": "wtf/core",
+    "homepage": "http://framework.wtf",
+    "type": "library",
+    "keywords": ["slim", "psr-1", "psr-2", "psr-4", "psr-5", "psr-7", "psr-11", "psr-12"],
+    "description": "Core package for WTF Framework",
+    "license": "MIT",
+    "prefer-stable": true,
+    "require": {
+        "php": "^7.1",
+        "slim/slim": "^3",
+        "sentry/sentry": "^1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Wtf\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Nikita Chernyi",
+            "email": "me+github@rakshazi.cf",
+            "homepage": "http://rakshazi.cf"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/frameworkwtf/core/issues"
+    },
+    "replace": {
+        "tisuit/core": "*"
+    }
+}
+
