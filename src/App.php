@@ -35,6 +35,7 @@ class App extends \Slim\App
             $container->register(new $provider());
         }
 
+        $this->add($container['globalrequest_middleware']);
         foreach ($container['config']('suit.middlewares', []) as $middleware) {
             $this->add($container[$middleware]);
         }

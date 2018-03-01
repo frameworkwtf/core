@@ -25,6 +25,14 @@ class Provider implements ServiceProviderInterface
         $container['sentry'] = $this->getSentry($container);
         $container['errorHandler'] = $this->setErrorHandler($container);
         $container['phpErrorHandler'] = $this->setErrorHandler($container);
+        $container['globalrequest_middleware'] = $container->protect(function ($request, $response, $next) use ($container) {
+            if ($container->has('request')) {
+                unset($container['request']);
+                $container['request'] = $request;
+            }
+
+            return $next($request, $response);
+        });
     }
 
     /**
