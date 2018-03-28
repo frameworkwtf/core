@@ -57,7 +57,7 @@ class Provider implements ServiceProviderInterface
     protected function getConfig(Container $container): callable
     {
         return $container->protect(function (...$args) use ($container) {
-            return call_user_func_array($container['suit_config'], $args);
+            return \call_user_func_array($container['suit_config'], $args);
         });
     }
 

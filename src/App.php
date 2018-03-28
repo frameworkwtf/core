@@ -19,11 +19,11 @@ class App extends \Slim\App
          * If not passed, use default `pwd`/config
          */
         if (!isset($container['config_dir'])) {
-            $container['config_dir'] = getcwd().'/config';
+            $container['config_dir'] = \getcwd().'/config';
         }
 
         // To register dependencies, we need container object, not array
-        if (is_array($container)) {
+        if (\is_array($container)) {
             $container = new \Slim\Container($container);
         }
 
@@ -41,7 +41,7 @@ class App extends \Slim\App
         }
 
         // Merge slim default settings with user defined
-        $settings = array_merge((array) $container['settings']->all(), $container['config']('suit.settings', []));
+        $settings = \array_merge((array) $container['settings']->all(), $container['config']('suit.settings', []));
         unset($container['settings']);
         $container['settings'] = $settings;
 

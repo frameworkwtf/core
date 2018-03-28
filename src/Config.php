@@ -42,13 +42,13 @@ class Config
      */
     public function __invoke(string $string, $default = null)
     {
-        $keys = explode('.', $string);
-        $group_name = array_shift($keys);
+        $keys = \explode('.', $string);
+        $group_name = \array_shift($keys);
         $group = $this->getGroup($group_name);
         if (!$keys) {
             return $group;
         }
-        $total = count($keys);
+        $total = \count($keys);
         foreach ($keys as $i => $key) {
             if (isset($group[$key])) {
                 if ($i === $total - 1) {
@@ -86,7 +86,7 @@ class Config
     protected function loadGroup(string $name): void
     {
         $file = $this->container->get('config_dir').'/'.$name.'.php';
-        $data = is_file($file) ? include($file) : [];
+        $data = \is_file($file) ? include($file) : [];
         $this->container['config_'.$name] = $data;
     }
 }

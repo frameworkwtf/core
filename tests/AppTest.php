@@ -18,7 +18,7 @@ class AppTest extends TestCase
     public function testWithoutConfigDir(): void
     {
         $app = new \Wtf\App([]);
-        $this->assertEquals(getcwd().'/config', $app->getContainer()->get('config_dir'));
+        $this->assertEquals(\getcwd().'/config', $app->getContainer()->get('config_dir'));
     }
 
     public function testCustomProviders(): void

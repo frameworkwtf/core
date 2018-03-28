@@ -39,25 +39,25 @@ class Root
      */
     public function __call(?string $method = null, array $params = [])
     {
-        $parts = preg_split('/([A-Z][^A-Z]*)/', $method, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
-        $type = array_shift($parts);
+        $parts = \preg_split('/([A-Z][^A-Z]*)/', $method, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
+        $type = \array_shift($parts);
 
         // Call current class method
-        if (method_exists($this, $method)) {
-            return call_user_func_array([$this, $method], $params);
+        if (\method_exists($this, $method)) {
+            return \call_user_func_array([$this, $method], $params);
         }
 
         // Call method from container
         if ($this->container->has($method)) {
-            return call_user_func_array($this->container[$method], $params);
+            return \call_user_func_array($this->container[$method], $params);
         }
 
         // Call getter/setter
         if ('get' === $type || 'set' === $type) {
-            $property = strtolower(implode('_', $parts));
+            $property = \strtolower(\implode('_', $parts));
             $params = (isset($params[0])) ? [$property, $params[0]] : [$property];
 
-            return call_user_func_array([$this, $type], $params);
+            return \call_user_func_array([$this, $type], $params);
         }
 
         throw new \Exception('Method "'.$method.'" not implemented.');
