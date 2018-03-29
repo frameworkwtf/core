@@ -30,6 +30,12 @@ class ProviderTest extends TestCase
         $this->assertEquals(['test' => 'user'], $this->container->sentry->context->user);
     }
 
+    public function testControllerLoader(): void
+    {
+        $controller = $this->container['controller']('dummy_controller');
+        $this->assertInstanceOf('\Wtf\Root', $controller);
+    }
+
     public function testErrorHander(): void
     {
         $middleware = $this->container->errorHandler;

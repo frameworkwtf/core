@@ -23,6 +23,7 @@ class Provider implements ServiceProviderInterface
         $container['suit_config'] = $this->getSuitConfig();
         $container['config'] = $this->getConfig($container);
         $container['sentry'] = $this->getSentry($container);
+        $container['controller'] = $this->setControllerLoader($container);
         $container['errorHandler'] = $this->setErrorHandler($container);
         $container['phpErrorHandler'] = $this->setErrorHandler($container);
         $container['globalrequest_middleware'] = $container->protect(function ($request, $response, $next) use ($container) {
@@ -77,6 +78,31 @@ class Provider implements ServiceProviderInterface
 
             return $client;
         };
+    }
+
+    /**
+     * Set controller() function into container.
+     *
+     * @param Container $container
+     *
+     * @return callable
+     */
+    protected function setControllerLoader(Container $container): callable
+    {
+        return $container->protect(function (string $name) use ($container) {
+            $parts = \explode('_', $name);
+            $class = $container['config']('suit.namespaces.controller', '\\App\\Controller\\');
+            foreach ($parts as $part) {
+                $class .= \ucfirst($part);
+            }
+            if (!$container->has('controller_'.$class)) {
+                $container['controller_'.$class] = function ($container) use ($class) {
+                    return new $class($container);
+                };
+            }
+
+            return $container['controller_'.$class];
+        });
     }
 
     /**
