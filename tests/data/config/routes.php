@@ -3,5 +3,13 @@
 declare(strict_types=1);
 
 return [
-    '/test/route' => [],
+    'DummyController' => [
+        'test_route' => [
+            'pattern' => '/test/route',
+            'rbac' => [
+                'admin' => 'get',
+                'user' => 'post',
+            ],
+        ],
+    ],
 ];

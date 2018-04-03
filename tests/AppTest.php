@@ -44,6 +44,7 @@ class AppTest extends TestCase
         //test app_router
         foreach ($app->getContainer()->get('router')->getRoutes() as $route) {
             $this->assertAttributeContains('/test/route', 'pattern', $route);
+            $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $route($app->getContainer()->request, $app->getContainer()->response));
         }
 
         $appRouter = $app->getContainer()->get('app_router');

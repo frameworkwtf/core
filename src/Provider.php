@@ -20,12 +20,15 @@ class Provider implements ServiceProviderInterface
      */
     public function register(Container $container): void
     {
-        $container['suit_config'] = $this->getSuitConfig();
-        $container['config'] = $this->getConfig($container);
-        $container['sentry'] = $this->getSentry($container);
-        $container['controller'] = $this->setControllerLoader($container);
-        $container['errorHandler'] = $this->setErrorHandler($container);
-        $container['phpErrorHandler'] = $this->setErrorHandler($container);
+        $container['suit_config'] = function ($c) {
+            return new Config($c);
+        };
+        $container['config'] = $container->protect(function (string $string, $default = null) use ($container) {
+            return $container['suit_config']->__invoke($string, $default);
+        });
+        $container['app_router'] = function ($c) {
+            return new Router($c);
+        };
         $container['globalrequest_middleware'] = $container->protect(function ($request, $response, $next) use ($container) {
             if ($container->has('request')) {
                 unset($container['request']);
@@ -34,32 +37,10 @@ class Provider implements ServiceProviderInterface
 
             return $next($request, $response);
         });
-    }
-
-    /**
-     * Prepare config object.
-     *
-     * @return callable
-     */
-    protected function getSuitConfig(): callable
-    {
-        return function ($c) {
-            return new Config($c);
-        };
-    }
-
-    /**
-     * Add 'shortcut' to suit config __invoke().
-     *
-     * @param Container $container
-     *
-     * @return callable
-     */
-    protected function getConfig(Container $container): callable
-    {
-        return $container->protect(function (...$args) use ($container) {
-            return \call_user_func_array($container['suit_config'], $args);
-        });
+        $container['sentry'] = $this->getSentry($container);
+        $container['controller'] = $this->setControllerLoader($container);
+        $container['errorHandler'] = $this->setErrorHandler($container);
+        $container['phpErrorHandler'] = $this->setErrorHandler($container);
     }
 
     /**

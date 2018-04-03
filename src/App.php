@@ -55,9 +55,7 @@ class App extends \Slim\App
     public function run($silent = false)
     {
         //Allow routing on application level via invokable class
-        if ($this->getContainer()->has('app_router')) {
-            $this->getContainer()['app_router']($this);
-        }
+        $this->getContainer()['app_router']($this);
 
         return parent::run($silent);
     }

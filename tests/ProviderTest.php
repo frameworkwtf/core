@@ -17,6 +17,11 @@ class ProviderTest extends TestCase
         $this->container = $app->getContainer();
     }
 
+    public function testAppRouter(): void
+    {
+        $this->assertInstanceOf('\Wtf\Router', $this->container->app_router);
+    }
+
     public function testSentryWithoutUserContext(): void
     {
         $this->assertInstanceOf('\Raven_Client', $this->container->sentry);
