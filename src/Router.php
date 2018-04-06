@@ -24,7 +24,7 @@ class Router extends \Wtf\Root
                 $controller = ('/' === $group_name || !$group_name) ? 'index' : \trim($group_name, '/');
 
                 foreach ($routes as $name => $route) {
-                    $methods = $route['methods'] ?? ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'];
+                    $methods = $route['methods'] ?? ['GET'];
                     $pattern = $route['pattern'] ?? '';
                     $callable = function (Request $request, Response $response, array $args = []) use ($controller, $route) {
                         return $this['controller']($controller)->__invoke($request, $response, $args);
