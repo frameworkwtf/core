@@ -29,7 +29,7 @@ class Router extends \Wtf\Root
                     $callable = function (Request $request, Response $response, array $args = []) use ($controller, $route) {
                         return $this['controller']($controller)->__invoke($request, $response, $args);
                     };
-                    $this->map($methods, $pattern, $callable)->setName($controller.'-'.$name);
+                    $this->map($methods, $pattern, $callable)->setName(('index' === $controller ? '' : $controller).'-'.$name);
                 }
             });
         }
