@@ -106,4 +106,26 @@ class Root
 
         return $this;
     }
+    
+    /**
+     * Return all entity data as array.
+     *
+     * @return array
+     */
+    public function getData(): array
+    {
+        return $this->data;
+    }
+    /**
+     * Set all data to entity.
+     *
+     * @param array $data
+     *
+     * @return Root
+     */
+    public function setData(array $data): self
+    {
+        $this->data = \array_merge($this->data, $data);
+        return $this;
+    }
 }
