@@ -46,6 +46,22 @@ class RootTest extends TestCase
         $this->assertEquals($this->root->getProperty(false), false);
     }
 
+    public function testGetSetData(): void
+    {
+        //getData (from scratch)
+        $this->assertEquals([], $this->root->getData());
+        //setData (from scratch)
+        $this->root->setData(['one' => true, 'two' => true]);
+        $this->assertTrue($this->root->getOne());
+        $this->assertTrue($this->root->getTwo());
+        //setData (mege)
+        $this->root->setData(['one' => false]);
+        $this->assertFalse($this->root->getOne());
+        $this->assertTrue($this->root->getTwo());
+        //getData (with data)
+        $this->assertEquals(['one' => false, 'two' => true], $this->root->getData());
+    }
+
     public function testMagicGet(): void
     {
         $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $this->root->response);

@@ -106,7 +106,7 @@ class Root
 
         return $this;
     }
-    
+
     /**
      * Return all entity data as array.
      *
@@ -116,6 +116,7 @@ class Root
     {
         return $this->data;
     }
+
     /**
      * Set all data to entity.
      *
@@ -126,6 +127,7 @@ class Root
     public function setData(array $data): self
     {
         $this->data = \array_merge($this->data, $data);
+
         return $this;
     }
 }
