@@ -26,7 +26,9 @@ class Router extends \Wtf\Root
                 foreach ($routes as $name => $route) {
                     $methods = $route['methods'] ?? ['GET'];
                     $pattern = $route['pattern'] ?? '';
-                    $callable = function (Request $request, Response $response, array $args = []) use ($controller, $route) {
+                    $callable = function (Request $request, Response $response, array $args = []) use ($controller, $name) {
+                        $args['action'] = $name;
+
                         return $this['controller']($controller)->__invoke($request, $response, $args);
                     };
                     $this->map($methods, $pattern, $callable)->setName(('index' === $controller ? '' : $controller).'-'.$name);
