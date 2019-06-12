@@ -4,59 +4,226 @@ declare(strict_types=1);
 
 namespace Wtf;
 
-class App extends \Slim\App
+use League\Container\Container;
+use Psr\Container\ContainerInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Slim\Factory\AppFactory;
+use Slim\Interfaces\RouteGroupInterface;
+use Slim\Interfaces\RouteInterface;
+use Slim\Middleware\ErrorMiddleware;
+use Slim\Middleware\RoutingMiddleware;
+
+class App
 {
     /**
-     * Override Slim constructor to add some magic.
-     *
-     * @param mixed $container
+     * @var ContainerInterface
      */
-    public function __construct($container = [])
+    protected $container;
+
+    /**
+     * @param string $configPath Path to config directory
+     */
+    public function __construct(string $configPath)
     {
-        /*
-         * Try to find config_dir in passed config,
-         * because it's required for config loading.
-         * If not passed, use default `pwd`/config
-         */
-        if (!isset($container['config_dir'])) {
-            $container['config_dir'] = \getcwd().'/config';
-        }
-
-        // To register dependencies, we need container object, not array
-        if (\is_array($container)) {
-            $container = new \Slim\Container($container);
-        }
-
-        // Register system dependencies
-        $container->register(new Provider());
-
-        // If application has custom service provider, register it
-        foreach ($container['config']('suit.providers', []) as $provider) {
-            $container->register(new $provider());
-        }
-
-        $this->add($container['globalrequest_middleware']);
-        foreach ($container['config']('suit.middlewares', []) as $middleware) {
-            $this->add($container[$middleware]);
-        }
-
-        // Merge slim default settings with user defined
-        $settings = \array_merge((array) $container['settings']->all(), $container['config']('suit.settings', []));
-        unset($container['settings']);
-        $container['settings'] = $settings;
-
-        // And, finally, run Slim constructor
-        parent::__construct($container);
+        $this->container = $this->initContainer($configPath);
+        $this->slim = $this->initSlim();
     }
 
     /**
-     * {@inheritdoc}
+     * Init PSR-11 container with all WTF stuff included.
+     *
+     * @param string $configPath Path to config dir
+     *
+     * @return ContainerInterface
      */
-    public function run($silent = false)
+    public function initContainer(string $configPath): ContainerInterface
     {
-        //Allow routing on application level via invokable class
-        $this->getContainer()['app_router']($this);
+        $container = new Container();
+        $container->defaultToShared(true);
+        $container->add('__wtf_config_path', $configPath);
+        $container->addServiceProvider('Wtf\Provider');
+        // Load application service providers
+        foreach ($container->get('config')('wtf.providers', []) as $provider) {
+            $container->addServiceProvider($provider);
+        }
 
-        return parent::run($silent);
+        return $container;
+    }
+
+    /**
+     * Init Slim framework app.
+     *
+     * @return \Slim\App
+     */
+    public function initSlim(): \Slim\App
+    {
+        $slim = AppFactory::create();
+        //Load application middlewares
+        foreach ($this->container->get('config')('wtf.middlewares', []) as $middleware) {
+            $slim->add($this->container->get($middleware));
+        }
+        $slim->add(new RoutingMiddleware($slim->getRouteResolver()));
+        //@see https://github.com/slimphp/Slim/pull/2398
+        $responseFactory = $slim->getResponseFactory();
+        $errorMiddleware = new ErrorMiddleware($slim->getCallableResolver(), $responseFactory, true, true, true);
+        $defaultErrorHandler = $this->container->get('config')('wtf.error.handlers.default', null);
+        if ($defaultErrorHandler) {
+            $errorMiddleware->setDefaultErrorHandler($defaultErrorHandler);
+        }
+        foreach ($this->container->get('config')('wtf.error.handlers.custom', []) as $exception => $handler) {
+            $errorMiddleware->setErrorHandler($exception, $handler);
+        }
+        $slim->add($errorMiddleware);
+
+        return $slim;
+    }
+
+    /**
+     * Add GET route.
+     *
+     * @param string          $pattern  The route URI pattern
+     * @param callable|string $callable The route callback routine
+     *
+     * @return RouteInterface
+     */
+    public function get(string $pattern, $callable): RouteInterface
+    {
+        return $this->slim->get($pattern, $callable);
+    }
+
+    /**
+     * Add POST route.
+     *
+     * @param string          $pattern  The route URI pattern
+     * @param callable|string $callable The route callback routine
+     *
+     * @return RouteInterface
+     */
+    public function post(string $pattern, $callable): RouteInterface
+    {
+        return $this->slim->post($pattern, $callable);
+    }
+
+    /**
+     * Add PUT route.
+     *
+     * @param string          $pattern  The route URI pattern
+     * @param callable|string $callable The route callback routine
+     *
+     * @return RouteInterface
+     */
+    public function put(string $pattern, $callable): RouteInterface
+    {
+        return $this->slim->put($pattern, $callable);
+    }
+
+    /**
+     * Add PATCH route.
+     *
+     * @param string          $pattern  The route URI pattern
+     * @param callable|string $callable The route callback routine
+     *
+     * @return RouteInterface
+     */
+    public function patch(string $pattern, $callable): RouteInterface
+    {
+        return $this->slim->patch($pattern, $callable);
+    }
+
+    /**
+     * Add DELETE route.
+     *
+     * @param string          $pattern  The route URI pattern
+     * @param callable|string $callable The route callback routine
+     *
+     * @return RouteInterface
+     */
+    public function delete(string $pattern, $callable): RouteInterface
+    {
+        return $this->slim->delete($pattern, $callable);
+    }
+
+    /**
+     * Add OPTIONS route.
+     *
+     * @param string          $pattern  The route URI pattern
+     * @param callable|string $callable The route callback routine
+     *
+     * @return RouteInterface
+     */
+    public function options(string $pattern, $callable): RouteInterface
+    {
+        return $this->slim->options($pattern, $callable);
+    }
+
+    /**
+     * Add route for any HTTP method.
+     *
+     * @param string          $pattern  The route URI pattern
+     * @param callable|string $callable The route callback routine
+     *
+     * @return RouteInterface
+     */
+    public function any(string $pattern, $callable): RouteInterface
+    {
+        return $this->slim->any($pattern, $callable);
+    }
+
+    /**
+     * Add route with multiple methods.
+     *
+     * @param string[]        $methods  Numeric array of HTTP method names
+     * @param string          $pattern  The route URI pattern
+     * @param callable|string $callable The route callback routine
+     *
+     * @return RouteInterface
+     */
+    public function map(array $methods, string $pattern, $callable): RouteInterface
+    {
+        return $this->slim->map($methods, $pattern, $callable);
+    }
+
+    /**
+     * Route Groups.
+     *
+     * This method accepts a route pattern and a callback. All route
+     * declarations in the callback will be prepended by the group(s)
+     * that it is in.
+     *
+     * @param string   $pattern
+     * @param callable $callable
+     *
+     * @return RouteGroupInterface
+     */
+    public function group(string $pattern, $callable): RouteGroupInterface
+    {
+        return $this->slim->group($pattern, $callable);
+    }
+
+    /**
+     * Add a route that sends an HTTP redirect.
+     *
+     * @param string              $from
+     * @param string|UriInterface $to
+     * @param int                 $status
+     *
+     * @return RouteInterface
+     */
+    public function redirect(string $from, $to, int $status = 302): RouteInterface
+    {
+        return $this->slim->redirect($from, $to, $status);
+    }
+
+    /**
+     * Run application.
+     *
+     * This method traverses the application middleware stack and then sends the
+     * resultant Response object to the HTTP client.
+     *
+     * @param null|ServerRequestInterface $request
+     */
+    public function run(ServerRequestInterface $request = null): void
+    {
+        $this->slim->run($request);
     }
 }

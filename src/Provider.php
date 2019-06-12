@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace Wtf;
 
-use Pimple\Container;
-use Pimple\ServiceProviderInterface;
+use League\Container\ServiceProvider\AbstractServiceProvider;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Throwable;
@@ -13,34 +12,37 @@ use Throwable;
 /**
  * Wtf Service Provider.
  */
-class Provider implements ServiceProviderInterface
+class Provider extends AbstractServiceProvider
 {
+    /**
+     * @var array
+     */
+    protected $provides = [
+        'config',
+        'Wtf\Config',
+    ];
+
     /**
      * {@inheritdoc}
      */
-    public function register(Container $container): void
+    public function register(): void
     {
-        $container['suit_config'] = function ($c) {
-            return new Config($c);
-        };
-        $container['config'] = $container->protect(function (string $string, $default = null) use ($container) {
-            return $container['suit_config']->__invoke($string, $default);
-        });
-        $container['app_router'] = function ($c) {
-            return new Router($c);
-        };
-        $container['globalrequest_middleware'] = $container->protect(function ($request, $response, $next) use ($container) {
-            if ($container->has('request')) {
-                unset($container['request']);
-                $container['request'] = $request;
-            }
+        $this->getContainer()->add('config', 'Wtf\Config')->addArgument('__wtf_config_path');
+        //$container['app_router'] = function ($c) {
+            //return new Router($c);
+        //};
+        //$container['globalrequest_middleware'] = $container->protect(function ($request, $response, $next) use ($container) {
+            //if ($container->has('request')) {
+                //unset($container['request']);
+                //$container['request'] = $request;
+            //}
 
-            return $next($request, $response);
-        });
-        $container['sentry'] = $this->getSentry($container);
-        $container['controller'] = $this->setControllerLoader($container);
-        $container['errorHandler'] = $this->setErrorHandler($container);
-        $container['phpErrorHandler'] = $this->setErrorHandler($container);
+            //return $next($request, $response);
+        //});
+        //$container['sentry'] = $this->getSentry($container);
+        //$container['controller'] = $this->setControllerLoader($container);
+        //$container['errorHandler'] = $this->setErrorHandler($container);
+        //$container['phpErrorHandler'] = $this->setErrorHandler($container);
     }
 
     /**

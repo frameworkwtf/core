@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Wtf;
 
-use Psr\Container\ContainerInterface;
-
 /**
  * Adopted PHPixie\Config 2.x.
  *
@@ -14,15 +12,22 @@ use Psr\Container\ContainerInterface;
 class Config
 {
     /**
-     * PSR-11 Container.
+     * Loaded config data.
      *
-     * @var ContainerInterface
+     * @var array
      */
-    protected $container;
+    protected $data = [];
 
-    public function __construct(ContainerInterface $container)
+    /**
+     * Config path.
+     *
+     * @var string
+     */
+    protected $path;
+
+    public function __construct(string $configPath)
     {
-        $this->container = $container;
+        $this->path = $configPath;
     }
 
     /**
@@ -71,11 +76,11 @@ class Config
      */
     protected function getGroup(string $name): array
     {
-        if (!$this->container->has('config_'.$name)) {
+        if (!isset($this->data['config_'.$name])) {
             $this->loadGroup($name);
         }
 
-        return $this->container->get('config_'.$name);
+        return $this->data['config_'.$name];
     }
 
     /**
@@ -85,8 +90,8 @@ class Config
      */
     protected function loadGroup(string $name): void
     {
-        $file = $this->container->get('config_dir').'/'.$name.'.php';
+        $file = $this->path.'/'.$name.'.php';
         $data = \is_file($file) ? include($file) : [];
-        $this->container['config_'.$name] = $data;
+        $this->data['config_'.$name] = $data;
     }
 }
