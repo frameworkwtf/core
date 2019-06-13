@@ -27,7 +27,7 @@ before_script:
 
 script:
 - ./php-cs-fixer fix --dry-run --diff
-- phpunit -c phpunit.xml.dist
+- $(composer config --global home)/vendor/bin/phpunit -c phpunit.xml.dist
 
 after_script:
-- travis_retry php vendor/bin/php-coveralls -v
+- travis_retry php $(composer config --global home)/vendor/bin/php-coveralls -v
