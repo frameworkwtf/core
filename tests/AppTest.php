@@ -49,12 +49,22 @@ class AppTest extends TestCase
     {
         $dir = __DIR__.'/data/config';
         $app = new \Wtf\App($dir);
-        $app->get('/', function ($request, $response) {
+        $app->get('/test', function ($request, $response) {
             $response->getBody()->write('Hello World');
 
             return $response;
         });
+        $appRouter = $app->getContainer()->get('__wtf_router');
         $app->run();
         $this->expectOutputString('Hello World');
+    }
+
+    public function testAppRouter(): void
+    {
+        $dir = __DIR__.'/data/config';
+        $app = new \Wtf\App($dir);
+        $appRouter = $app->getContainer()->get('__wtf_router');
+        $appRouter->run($app->getSlim());
+        $this->expectOutputString('');
     }
 }

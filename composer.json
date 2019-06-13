@@ -12,7 +12,9 @@
         "nyholm/psr7": "^1.1",
         "slim/http": "^0.7.0",
         "nyholm/psr7-server": "^0.3.0",
-        "league/container": "^3.2"
+        "league/container": "^3.2",
+        "php-http/curl-client": "^2.0",
+        "sentry/sentry": "^2.1"
     },
     "autoload": {
         "psr-4": {

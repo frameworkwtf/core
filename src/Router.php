@@ -12,15 +12,26 @@ use Psr\Http\Message\ServerRequestInterface as Request;
  */
 class Router extends \Wtf\Root
 {
+    public function getController(string $name): \Wtf\Root
+    {
+        $parts = \explode('_', $name);
+        $class = $this->config('wtf.namespace.controller', '\\App\\Controller\\');
+        foreach ($parts as $part) {
+            $class .= \ucfirst($part);
+        }
+
+        return new $class($this->container);
+    }
+
     /**
      * Map routes from `routes.php` config.
      *
      * @param \Slim\App $app
      */
-    public function __invoke(\Slim\App $app): void
+    public function run(\Slim\App $app): void
     {
         foreach ($this->config('routes') as $group_name => $routes) {
-            $app->group($group_name, function () use ($group_name, $routes): void {
+            $app->group($group_name, function ($group) use ($group_name, $routes): void {
                 $controller = ('/' === $group_name || !$group_name) ? 'index' : \trim($group_name, '/');
 
                 foreach ($routes as $name => $route) {
@@ -29,9 +40,9 @@ class Router extends \Wtf\Root
                     $callable = function (Request $request, Response $response, array $args = []) use ($controller, $name) {
                         $args['action'] = $name;
 
-                        return $this['controller']($controller)->__invoke($request, $response, $args);
+                        return $this->get('__wtf_router')->getController($controller)->__invoke($request, $response, $args);
                     };
-                    $this->map($methods, $pattern, $callable)->setName(('index' === $controller ? '' : $controller).'-'.$name);
+                    $group->map($methods, $pattern, $callable)->setName(('index' === $controller ? '' : $controller).'-'.$name);
                 }
             });
         }

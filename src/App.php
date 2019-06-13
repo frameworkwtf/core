@@ -21,6 +21,11 @@ class App
     protected $container;
 
     /**
+     * @var \Slim\App
+     */
+    protected $slim;
+
+    /**
      * @param string $configPath Path to config directory
      */
     public function __construct(string $configPath)
@@ -74,6 +79,7 @@ class App
             $errorMiddleware->setErrorHandler($exception, $this->container->get($handler));
         }
         $slim->add($errorMiddleware);
+        $this->container->get('__wtf_router')->run($slim);
 
         return $slim;
     }
@@ -84,6 +90,14 @@ class App
     public function getContainer(): ContainerInterface
     {
         return $this->container;
+    }
+
+    /**
+     * @return ContainerInterface
+     */
+    public function getSlim(): \Slim\App
+    {
+        return $this->slim;
     }
 
     /**

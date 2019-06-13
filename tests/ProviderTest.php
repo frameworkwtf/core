@@ -19,47 +19,6 @@ class ProviderTest extends TestCase
 
     public function testAppRouter(): void
     {
-        $this->assertInstanceOf('\Wtf\Router', $this->container->app_router);
-    }
-
-    public function testSentryWithoutUserContext(): void
-    {
-        $this->assertInstanceOf('\Raven_Client', $this->container->sentry);
-        $this->assertNull($this->container->sentry->context->user);
-    }
-
-    public function testSentryWithUserContext(): void
-    {
-        $this->container['user'] = ['test' => 'user'];
-        $this->assertInstanceOf('\Raven_Client', $this->container->sentry);
-        $this->assertEquals(['test' => 'user'], $this->container->sentry->context->user);
-    }
-
-    public function testControllerLoader(): void
-    {
-        $controller = $this->container['controller']('dummy_controller');
-        $this->assertInstanceOf('\Wtf\Root', $controller);
-    }
-
-    public function testErrorHander(): void
-    {
-        $middleware = $this->container->errorHandler;
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $middleware($this->container->request, $this->container->response, new \Exception()));
-    }
-
-    public function testAppErrorHandler(): void
-    {
-        $this->container['appErrorHandler'] = function ($c) {
-            return new Dummy\ErrorHandler($c);
-        };
-
-        $middleware = $this->container->errorHandler;
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $middleware($this->container->request, $this->container->response, new \Exception()));
-    }
-
-    public function testPhpErrorHander(): void
-    {
-        $middleware = $this->container->phpErrorHandler;
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $middleware($this->container->request, $this->container->response, new \Exception()));
+        $this->assertInstanceOf('\Wtf\Router', $this->container->get('__wtf_router'));
     }
 }

@@ -3,9 +3,9 @@
 declare(strict_types=1);
 
 return [
-    'DummyController' => [
+    '/' => [
         'test_route' => [
-            'pattern' => '/test/route',
+            'pattern' => '',
             'rbac' => [
                 'admin' => 'get',
                 'user' => 'post',
