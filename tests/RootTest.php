@@ -11,7 +11,7 @@ class RootTest extends TestCase
     protected function setUp(): void
     {
         $dir = __DIR__.'/data/config';
-        $app = new \Wtf\App(['config_dir' => $dir]);
+        $app = new \Wtf\App($dir);
         $this->root = new \Wtf\Root($app->getContainer());
     }
 
@@ -64,13 +64,13 @@ class RootTest extends TestCase
 
     public function testMagicGet(): void
     {
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $this->root->response);
+        $this->assertInstanceOf('\Wtf\Config', $this->root->config);
         $this->assertNull($this->root->undefined);
     }
 
     public function testMagicContainerMethod(): void
     {
-        $this->assertEquals('something', $this->root->config('suit.dummy.has'));
+        $this->assertEquals('something', $this->root->config('wtf.dummy.has'));
     }
 
     public function testUndefinedMethod(): void

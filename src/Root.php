@@ -49,7 +49,7 @@ class Root
 
         // Call method from container
         if ($this->container->has($method)) {
-            return \call_user_func_array($this->container[$method], $params);
+            return \call_user_func_array($this->container->get($method), $params);
         }
 
         // Call getter/setter
