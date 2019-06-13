@@ -19,14 +19,14 @@ class AppTest extends TestCase
     {
         $dir = __DIR__.'/data/config';
         $app = new \Wtf\App($dir);
-        $this->assertContains('\Wtf\Core\Tests\Dummy\Provider', $app->getContainer()->get('config')('wtf.providers'));
+        $this->assertContains('\Wtf\Core\Tests\Dummy\Provider', $app->getContainer()->get('config')('wtf.providers', []));
     }
 
     public function testCustomMiddlewares(): void
     {
         $dir = __DIR__.'/data/config';
         $app = new \Wtf\App($dir);
-        $this->assertContains('example_middleware', $app->getContainer()->get('config')('wtf.middlewares'));
+        $this->assertContains('example_middleware', $app->getContainer()->get('config')('wtf.middlewares', []));
     }
 
     public function testProxiedMethods(): void
