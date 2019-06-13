@@ -57,7 +57,7 @@ class App
      */
     public function initSlim(): \Slim\App
     {
-        $slim = AppFactory::create();
+        $slim = AppFactory::create(null, $this->container);
         //Load application middlewares
         foreach ($this->container->get('config')('wtf.middlewares', []) as $middleware) {
             $slim->add($this->container->get($middleware));
@@ -68,14 +68,22 @@ class App
         $errorMiddleware = new ErrorMiddleware($slim->getCallableResolver(), $responseFactory, true, true, true);
         $defaultErrorHandler = $this->container->get('config')('wtf.error.handlers.default', null);
         if ($defaultErrorHandler) {
-            $errorMiddleware->setDefaultErrorHandler($defaultErrorHandler);
+            $errorMiddleware->setDefaultErrorHandler($this->container->get($defaultErrorHandler));
         }
         foreach ($this->container->get('config')('wtf.error.handlers.custom', []) as $exception => $handler) {
-            $errorMiddleware->setErrorHandler($exception, $handler);
+            $errorMiddleware->setErrorHandler($exception, $this->container->get($handler));
         }
         $slim->add($errorMiddleware);
 
         return $slim;
+    }
+
+    /**
+     * @return ContainerInterface
+     */
+    public function getContainer(): ContainerInterface
+    {
+        return $this->container;
     }
 
     /**

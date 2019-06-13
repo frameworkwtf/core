@@ -13,7 +13,7 @@ class ProviderTest extends TestCase
     protected function setUp(): void
     {
         $dir = __DIR__.'/data/config';
-        $app = new \Wtf\App(['config_dir' => $dir]);
+        $app = new \Wtf\App($dir);
         $this->container = $app->getContainer();
     }
 

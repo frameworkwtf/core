@@ -8,46 +8,53 @@ use PHPUnit\Framework\TestCase;
 
 class AppTest extends TestCase
 {
-    public function testWithConfigDir(): void
+    public function testInit(): void
     {
         $dir = __DIR__.'/data/config';
-        $app = new \Wtf\App(['config_dir' => $dir]);
-        $this->assertEquals($dir, $app->getContainer()->get('config_dir'));
-    }
-
-    public function testWithoutConfigDir(): void
-    {
-        $app = new \Wtf\App([]);
-        $this->assertEquals(\getcwd().'/config', $app->getContainer()->get('config_dir'));
+        $app = new \Wtf\App($dir);
+        $this->assertEquals($dir, $app->getContainer()->get('__wtf_config_path'));
     }
 
     public function testCustomProviders(): void
     {
         $dir = __DIR__.'/data/config';
-        $app = new \Wtf\App(['config_dir' => $dir]);
-        $this->assertContains('\Wtf\Core\Tests\Dummy\Provider', $app->getContainer()['config']('suit.providers'));
+        $app = new \Wtf\App($dir);
+        $this->assertContains('\Wtf\Core\Tests\Dummy\Provider', $app->getContainer()->get('config')('wtf.providers'));
     }
 
     public function testCustomMiddlewares(): void
     {
         $dir = __DIR__.'/data/config';
-        $app = new \Wtf\App(['config_dir' => $dir]);
-        $this->assertContains('example_middleware', $app->getContainer()['config']('suit.middlewares'));
+        $app = new \Wtf\App($dir);
+        $this->assertContains('example_middleware', $app->getContainer()->get('config')('wtf.middlewares'));
+    }
+
+    public function testProxiedMethods(): void
+    {
+        $dir = __DIR__.'/data/config';
+        $app = new \Wtf\App($dir);
+        $this->assertInstanceOf('Slim\Interfaces\RouteGroupInterface', $app->group('/', function ($group) { return $group; }));
+        $this->assertInstanceOf('Slim\Interfaces\RouteInterface', $app->any('/', function ($request, $response) { return $response; }));
+        $this->assertInstanceOf('Slim\Interfaces\RouteInterface', $app->delete('/', function ($request, $response) { return $response; }));
+        $this->assertInstanceOf('Slim\Interfaces\RouteInterface', $app->get('/', function ($request, $response) { return $response; }));
+        $this->assertInstanceOf('Slim\Interfaces\RouteInterface', $app->map(['GET'], '/', function ($request, $response) { return $response; }));
+        $this->assertInstanceOf('Slim\Interfaces\RouteInterface', $app->options('/', function ($request, $response) { return $response; }));
+        $this->assertInstanceOf('Slim\Interfaces\RouteInterface', $app->patch('/', function ($request, $response) { return $response; }));
+        $this->assertInstanceOf('Slim\Interfaces\RouteInterface', $app->post('/', function ($request, $response) { return $response; }));
+        $this->assertInstanceOf('Slim\Interfaces\RouteInterface', $app->put('/', function ($request, $response) { return $response; }));
+        $this->assertInstanceOf('Slim\Interfaces\RouteInterface', $app->redirect('/', '/redirected'));
     }
 
     public function testRun(): void
     {
         $dir = __DIR__.'/data/config';
-        $app = new \Wtf\App(['config_dir' => $dir]);
-        $response = $app->run(true);
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $response);
-        //test app_router
-        foreach ($app->getContainer()->get('router')->getRoutes() as $route) {
-            $this->assertAttributeContains('/test/route', 'pattern', $route);
-            $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $route($app->getContainer()->request, $app->getContainer()->response));
-        }
+        $app = new \Wtf\App($dir);
+        $app->get('/', function ($request, $response) {
+            $response->getBody()->write('Hello World');
 
-        $appRouter = $app->getContainer()->get('app_router');
-        $appRouter->__invoke($app);
+            return $response;
+        });
+        $app->run();
+        $this->expectOutputString('Hello World');
     }
 }
