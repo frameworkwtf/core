@@ -23,6 +23,11 @@ before_script:
   - mkdir -p tests/coverage
 
 script:
+  - ls -lah .
+  - ls -lah tests
+  - ls -lah tests/data
+  - ls -lah tests/data/config
+  - cat tests/data/config/wtf.php
   - composer test:cs
   - composer test:unit
 
