@@ -11,7 +11,6 @@ class AppTest extends TestCase
     public function testInit(): void
     {
         $dir = __DIR__.'/data/config';
-        \var_dump(['config dir' => $dir]);
         $app = new \Wtf\App($dir);
         $this->assertEquals($dir, $app->getContainer()->get('__wtf_config_path'));
     }
@@ -19,7 +18,6 @@ class AppTest extends TestCase
     public function testCustomProviders(): void
     {
         $dir = __DIR__.'/data/config';
-        \var_dump(['config dir' => $dir]);
         $app = new \Wtf\App($dir);
         $this->assertContains('\Wtf\Core\Tests\Dummy\Provider', $app->getContainer()->get('config')('wtf.providers', []));
     }
@@ -27,7 +25,6 @@ class AppTest extends TestCase
     public function testCustomMiddlewares(): void
     {
         $dir = __DIR__.'/data/config';
-        \var_dump(['config dir' => $dir]);
         $app = new \Wtf\App($dir);
         $this->assertContains('example_middleware', $app->getContainer()->get('config')('wtf.middlewares', []));
     }
@@ -35,7 +32,6 @@ class AppTest extends TestCase
     public function testProxiedMethods(): void
     {
         $dir = __DIR__.'/data/config';
-        \var_dump(['config dir' => $dir]);
         $app = new \Wtf\App($dir);
         $this->assertInstanceOf('Slim\Interfaces\RouteGroupInterface', $app->group('/', function ($group) { return $group; }));
         $this->assertInstanceOf('Slim\Interfaces\RouteInterface', $app->any('/', function ($request, $response) { return $response; }));
